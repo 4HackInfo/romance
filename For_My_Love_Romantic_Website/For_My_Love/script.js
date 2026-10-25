@@ -283,27 +283,40 @@ if ('IntersectionObserver' in window) {
   document.querySelectorAll('.section-frame').forEach((section) => {
     section.classList.add('in-view');
   });
+
 }
 
-// Automatically play romantic background music
-const bgMusic = document.getElementById('bgMusic');
 
-bgMusic.volume = 0.5;
 
-window.addEventListener('load', () => {
-  bgMusic.play().catch(() => {
-    // Browser may block autoplay with sound.
-    // Start playback after the first user interaction.
-    const startMusic = () => {
-      bgMusic.play().catch(() => {});
+const bgMusic = document.getElementById("bgMusic");
 
-      document.removeEventListener('click', startMusic);
-      document.removeEventListener('touchstart', startMusic);
-      document.removeEventListener('keydown', startMusic);
-    };
+if (bgMusic) {
+  bgMusic.loop = true;
+  bgMusic.volume = 0.5;
+  bgMusic.setAttribute("playsinline", "");
 
-    document.addEventListener('click', startMusic);
-    document.addEventListener('touchstart', startMusic);
-    document.addEventListener('keydown', startMusic);
-  });
-});
+  function startMusic() {
+    if (bgMusic.paused) {
+      bgMusic.play()
+        .then(() => {
+          // Remove listeners only after playback starts.
+          document.removeEventListener("pointerdown", startMusic);
+          document.removeEventListener("touchstart", startMusic);
+          document.removeEventListener("click", startMusic);
+          document.removeEventListener("keydown", startMusic);
+        })
+        .catch((error) => {
+          console.log("Music playback blocked:", error.message);
+        });
+    }
+  }
+
+  // Attempt automatic playback when the website opens.
+  startMusic();
+
+  // Support desktop, Android, and iPhone interactions.
+  document.addEventListener("pointerdown", startMusic);
+  document.addEventListener("touchstart", startMusic, { passive: true });
+  document.addEventListener("click", startMusic);
+  document.addEventListener("keydown", startMusic);
+}
