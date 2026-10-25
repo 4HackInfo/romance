@@ -284,3 +284,26 @@ if ('IntersectionObserver' in window) {
     section.classList.add('in-view');
   });
 }
+
+// Automatically play romantic background music
+const bgMusic = document.getElementById('bgMusic');
+
+bgMusic.volume = 0.5;
+
+window.addEventListener('load', () => {
+  bgMusic.play().catch(() => {
+    // Browser may block autoplay with sound.
+    // Start playback after the first user interaction.
+    const startMusic = () => {
+      bgMusic.play().catch(() => {});
+
+      document.removeEventListener('click', startMusic);
+      document.removeEventListener('touchstart', startMusic);
+      document.removeEventListener('keydown', startMusic);
+    };
+
+    document.addEventListener('click', startMusic);
+    document.addEventListener('touchstart', startMusic);
+    document.addEventListener('keydown', startMusic);
+  });
+});
